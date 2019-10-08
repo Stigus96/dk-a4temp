@@ -26,7 +26,18 @@ public class TCPClient {
         // TODO Step 1: implement this method
         // Hint: Remember to process all exceptions and return false on error
         // Hint: Remember to set up all the necessary input/output stream variables
-        return false;
+        //Establish connection to the remote server
+        try {
+        Socket socket = new Socket(host, port);
+        System.out.println("Successfully connected!");
+
+        connection = socket;
+
+        } catch (IOException e) {
+            System.out.println("Socket error: " + e.getMessage());
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -59,6 +70,35 @@ public class TCPClient {
     private boolean sendCommand(String cmd) {
         // TODO Step 2: Implement this method
         // Hint: Remember to check if connection is active
+
+
+        if (cmd.contains(" "))
+        {
+            String[] array = cmd.split(" ");
+            String firstword = array[0];
+
+
+            if (firstword.contains("login"))
+            {
+             firstword.trim(0);
+            }
+            if (firstword.contains("msg"))
+            {
+
+            }
+
+
+            if (firstword.contains("privmsg"))
+            {
+
+            }
+
+            if (firstword.contains("help"))
+            {
+
+            }
+        }
+
         return false;
     }
 
