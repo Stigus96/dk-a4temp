@@ -72,34 +72,48 @@ public class TCPClient {
         // Hint: Remember to check if connection is active
 
 
-        if (cmd.contains(" "))
-        {
-            String[] array = cmd.split(" ");
-            String firstword = array[0];
+        while (isConnectionActive()) {
+                try {
+                    String[] array = cmd.split("");
+                    if(array.length>2)
+                    {
+                        array = cmd.split(" ", 2);
+                    }
 
+                    String firstWord = array[0];
+                    //String RestWord = array[0];
+                    if (firstWord.contains("login")) {
+                        System.out.println("Fuck1");
+                        return true;
+                    }
+                    if (firstWord.startsWith("msg")) {
+                        System.out.println("Fuck2");
+                        return true;
+                    }
+                    if (firstWord.contains("privmsg")) {
+                        System.out.println("Fuck3");
+                        return true;
+                    }
+                    if (firstWord.contains("help")) {
+                        System.out.println("Fuck4");
+                        return true;
+                    }
+                    else {
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        PrintWriter writer = new PrintWriter(out, true);
+                        out.writeBytes("msg " + cmd);
+                        writer.println("");
 
-            if (firstword.contains("login"))
-            {
-             firstword.trim(0);
-            }
-            if (firstword.contains("msg"))
-            {
-
-            }
-
-
-            if (firstword.contains("privmsg"))
-            {
-
-            }
-
-            if (firstword.contains("help"))
-            {
-
-            }
+                        System.out.println("Message sent");
+                        return true;
+                    }
+                }
+                catch (IOException e) {
+                    System.out.println("Socket error: " + e.getMessage());
+                    return false;
+                }
         }
-
-        return false;
+     return true;
     }
 
     /**
@@ -112,7 +126,8 @@ public class TCPClient {
         // TODO Step 2: implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
-        return false;
+        sendCommand(message);
+        return true;
     }
 
     /**
