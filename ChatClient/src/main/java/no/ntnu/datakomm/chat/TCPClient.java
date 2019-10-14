@@ -52,6 +52,16 @@ public class TCPClient {
     public synchronized void disconnect() {
         // TODO Step 4: implement this method
         // Hint: remember to check if connection is active
+       if(isConnectionActive())
+        try {
+            connection.close();
+            onDisconnect();
+            connection = null;
+        }
+        catch (IOException e) {
+            System.out.println("Socket error: " + e.getMessage());
+        }
+
     }
 
     /**
@@ -154,7 +164,7 @@ public class TCPClient {
         // Hint: Reuse sendCommand() method
         String LoginName = "login"+ " " + username;
         sendCommand(LoginName);
-        waitServerResponse();
+
     }
 
     /**
@@ -254,24 +264,48 @@ public class TCPClient {
      */
     private void parseIncomingCommands() {
         while (isConnectionActive()) {
-            // TODO Step 3: Implement this method
-            // Hint: Reuse waitServerResponse() method
-            // Hint: Have a switch-case (or other way) to check what type of response is received from the server
-            // and act on it.
-            // Hint: In Step 3 you need to handle only login-related responses.
-            // Hint: In Step 3 reuse onLoginResult() method
+            try {
+                // TODO Step 3: Implement this method
+                // Hint: Reuse waitServerResponse() method
+                // Hint: Have a switch-case (or other way) to check what type of response is received from the server
+                // and act on it.
+                // Hint: In Step 3 you need to handle only login-related responses.
+                // Hint: In Step 3 reuse onLoginResult() method
 
-            // TODO Step 5: update this method, handle user-list response from the server
-            // Hint: In Step 5 reuse onUserList() method
+                String input = waitServerResponse();
+                if (input.startsWith("loginok")) {
+                    boolean success = true;
+                    String errMsg = "login successful";
+                    onLoginResult(success, errMsg);
+                }
 
-            // TODO Step 7: add support for incoming chat messages from other users (types: msg, privmsg)
-            // TODO Step 7: add support for incoming message errors (type: msgerr)
-            // TODO Step 7: add support for incoming command errors (type: cmderr)
-            // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
+                if (input.startsWith("loginerr")) {
+                    boolean success = false;
+                    String errMsg = "login failed";
+                    onLoginResult(success, errMsg);
+                }
+                else
+                {
+                 System.out.println("parse incoming command else");
+                }
 
-            // TODO Step 8: add support for incoming supported command list (type: supported)
+                // TODO Step 5: update this method, handle user-list response from the server
+                // Hint: In Step 5 reuse onUserList() method
 
+                // TODO Step 7: add support for incoming chat messages from other users (types: msg, privmsg)
+                // TODO Step 7: add support for incoming message errors (type: msgerr)
+                // TODO Step 7: add support for incoming command errors (type: cmderr)
+                // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
+
+                // TODO Step 8: add support for incoming supported command list (type: supported)
+
+            }
+            catch(NullPointerException e)
+            {
+                //Behandling av feil...
+            }
         }
+
     }
 
     /**
