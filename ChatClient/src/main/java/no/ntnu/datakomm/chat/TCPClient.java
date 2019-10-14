@@ -23,7 +23,7 @@ public class TCPClient {
      * @return True on success, false otherwise
      */
     public boolean connect(String host, int port) {
-        // TODO Step 1: implement this method
+        // TODO Step 1: implement this method -Done
         // Hint: Remember to process all exceptions and return false on error
         // Hint: Remember to set up all the necessary input/output stream variables
         //Establish connection to the remote server
@@ -50,7 +50,7 @@ public class TCPClient {
      * that no two threads call this method in parallel.
      */
     public synchronized void disconnect() {
-        // TODO Step 4: implement this method
+        // TODO Step 4: implement this method -Done
         // Hint: remember to check if connection is active
        if(isConnectionActive())
         try {
@@ -78,7 +78,7 @@ public class TCPClient {
      * @return true on success, false otherwise
      */
     private boolean sendCommand(String cmd) {
-        // TODO Step 2: Implement this method
+        // TODO Step 2: Implement this method -Done
         // Hint: Remember to check if connection is active
 
 
@@ -147,7 +147,7 @@ public class TCPClient {
      * @return true if message sent, false on error
      */
     public boolean sendPublicMessage(String message) {
-        // TODO Step 2: implement this method
+        // TODO Step 2: implement this method -Done
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
         sendCommand(message);
@@ -160,7 +160,7 @@ public class TCPClient {
      * @param username Username to use
      */
     public void tryLogin(String username) {
-        // TODO Step 3: implement this method
+        // TODO Step 3: implement this method -Done
         // Hint: Reuse sendCommand() method
         String LoginName = "login"+ " " + username;
         sendCommand(LoginName);
@@ -207,7 +207,7 @@ public class TCPClient {
      * @return one line of text (one command) received from the server
      */
     private String waitServerResponse() {
-        // TODO Step 3: Implement this method
+        // TODO Step 3: Implement this method -Done
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
         // Get response from the server
@@ -265,7 +265,7 @@ public class TCPClient {
     private void parseIncomingCommands() {
         while (isConnectionActive()) {
             try {
-                // TODO Step 3: Implement this method
+                // TODO Step 3: Implement this method -Doneish
                 // Hint: Reuse waitServerResponse() method
                 // Hint: Have a switch-case (or other way) to check what type of response is received from the server
                 // and act on it.
@@ -354,6 +354,9 @@ public class TCPClient {
     private void onDisconnect() {
         // TODO Step 4: Implement this method
         // Hint: all the onXXX() methods will be similar to onLoginResult()
+        for (ChatListener l : listeners) {
+            l.onDisconnect();
+        }
     }
 
     /**
