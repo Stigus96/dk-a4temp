@@ -80,24 +80,35 @@ public class TCPClient {
                         array = cmd.split(" ", 2);
                     }
 
+
                     String firstWord = array[0];
                     //String RestWord = array[0];
+
                     if (firstWord.contains("login")) {
-                        System.out.println("Fuck1");
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        PrintWriter writer = new PrintWriter(out, true);
+                        writer.println(cmd);
+
+                        System.out.println(cmd);
+                        System.out.println("Login message sent");
                         return true;
                     }
+
                     if (firstWord.startsWith("msg")) {
                         System.out.println("Fuck2");
                         return true;
                     }
+
                     if (firstWord.contains("privmsg")) {
                         System.out.println("Fuck3");
                         return true;
                     }
+
                     if (firstWord.contains("help")) {
                         System.out.println("Fuck4");
                         return true;
                     }
+
                     else {
                         DataOutputStream out = new DataOutputStream(connection.getOutputStream());
                         PrintWriter writer = new PrintWriter(out, true);
@@ -107,6 +118,9 @@ public class TCPClient {
                         System.out.println("Message sent");
                         return true;
                     }
+
+
+
                 }
                 catch (IOException e) {
                     System.out.println("Socket error: " + e.getMessage());
@@ -138,6 +152,9 @@ public class TCPClient {
     public void tryLogin(String username) {
         // TODO Step 3: implement this method
         // Hint: Reuse sendCommand() method
+        String LoginName = "login"+ " " + username;
+        sendCommand(LoginName);
+        waitServerResponse();
     }
 
     /**
@@ -183,7 +200,27 @@ public class TCPClient {
         // TODO Step 3: Implement this method
         // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
+        // Get response from the server
 
+        try {
+        InputStream in = connection.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+        String responseLine;
+        String serverResponse;
+
+            do{
+                responseLine = reader.readLine();
+                if (responseLine != null){
+                    System.out.println("SERVER: " + responseLine);
+                    serverResponse = responseLine;
+                    return serverResponse;
+                }
+            } while (responseLine != null);
+
+        }
+     catch (IOException e) {
+        System.out.println("Socket error: " + e.getMessage());
+    }
         return null;
     }
 
