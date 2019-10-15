@@ -302,7 +302,7 @@ public class TCPClient {
                     String errMsg = "login failed";
                     onLoginResult(success, errMsg);
                 }
-                else
+
 
 
                 // TODO Step 5: update this method, handle user-list response from the server
@@ -314,15 +314,42 @@ public class TCPClient {
                 }
 
                 // TODO Step 7: add support for incoming chat messages from other users (types: msg, privmsg)
+                if (input.startsWith("msg"))
+                {
+                    String message = input.replace("msg", "");
+                    String [] messageSplit = message.split(" ", 3);
+                    String sender = messageSplit[1];
+                    String messageText = messageSplit[2];
+
+                    onMsgReceived(false, sender, messageText);
+                    System.out.println(sender + messageText);
+                }
+
+                if (input.startsWith("privmsg"))
+                {
+                    String message = input.replace("privmsg", "");
+                    String [] messageSplit = message.split(" ", 3);
+                    String sender = messageSplit[1];
+                    String messageText = messageSplit[2];
+                    onMsgReceived(true, sender, messageText);
+                }
                 // TODO Step 7: add support for incoming message errors (type: msgerr)
+                if (input.startsWith("msgerror"))
+                {
+                    String errMsg = "Failed to send message";
+                    onMsgError(errMsg);
+
+                }
                 // TODO Step 7: add support for incoming command errors (type: cmderr)
                 // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
-
+                else
                 // TODO Step 8: add support for incoming supported command list (type: supported)
                 {
                     System.out.println("parse incoming command else");
                 }
+
             }
+
             catch(NullPointerException e)
             {
                 //Behandling av feil...
@@ -403,6 +430,9 @@ public class TCPClient {
      */
     private void onMsgReceived(boolean priv, String sender, String text) {
         // TODO Step 7: Implement this method
+        for (ChatListener l : listeners) {
+            l.onMessageReceived(new TextMessage(sender, priv, text));
+        }
     }
 
     /**
