@@ -121,6 +121,9 @@ public class TCPClient {
                     }
 
                     if (firstWord.contains("help")) {
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        PrintWriter writer = new PrintWriter(out, true);
+                        out.writeBytes(cmd);
                         System.out.println("Bolle4");
                         return true;
                     }
@@ -220,6 +223,8 @@ public class TCPClient {
      * Send a request for the list of commands that server supports.
      */
     public void askSupportedCommands() {
+        String sendHelp = "help";
+        sendCommand(sendHelp);
         // TODO Step 8: Implement this method
         // Hint: Reuse sendCommand() method
     }
@@ -345,7 +350,19 @@ public class TCPClient {
                 {
                     String errMsg = "Failed to send message";
                     onMsgError(errMsg);
+                }
 
+                if (input.startsWith("cmderr"))
+                {
+                    String errMsg = "Command Error";
+                    onCmdError(errMsg);
+                }
+
+                if (input.startsWith("supported"))
+                {
+                    String supportedCommands = input.replace("supported", "");
+                    String [] supportedCommandsSplit = supportedCommands.split(" ");
+                    onSupported(supportedCommandsSplit);
                 }
                 // TODO Step 7: add support for incoming command errors (type: cmderr)
                 // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
@@ -449,6 +466,9 @@ public class TCPClient {
      * @param errMsg Error description returned by the server
      */
     private void onMsgError(String errMsg) {
+        for (ChatListener l : listeners) {
+            l.onMessageError(errMsg);
+        }
         // TODO Step 7: Implement this method
     }
 
@@ -458,6 +478,9 @@ public class TCPClient {
      * @param errMsg Error message
      */
     private void onCmdError(String errMsg) {
+            for (ChatListener l : listeners) {
+                l.onCommandError(errMsg);
+        }
         // TODO Step 7: Implement this method
     }
 
@@ -468,6 +491,9 @@ public class TCPClient {
      * @param commands Commands supported by the server
      */
     private void onSupported(String[] commands) {
+        for (ChatListener l : listeners) {
+            l.onSupportedCommands(commands);
+        }
         // TODO Step 8: Implement this method
     }
 }
