@@ -120,7 +120,7 @@ public class TCPClient {
                         return true;
                     }
 
-                    if (firstWord.contains("help")) {
+                    if (firstWord.contains("/help")) {
                         System.out.println("Bolle4");
                         return true;
                     }
@@ -215,6 +215,7 @@ public class TCPClient {
     public void askSupportedCommands() {
         // TODO Step 8: Implement this method
         // Hint: Reuse sendCommand() method
+       // sendCommand("/help");
     }
 
 
@@ -317,7 +318,7 @@ public class TCPClient {
 
                 if (input.startsWith("privmsg"))
                 {   String userPrivMsg = input.replace("privMsg ", "");
-                    String [] privMsgSplit = userPrivMsg.split(" ");
+                    String [] privMsgSplit = userPrivMsg.split(" ", 3);
                     String sender = privMsgSplit[1];
                     String userPrivMsgOut = privMsgSplit[2];
 
@@ -326,7 +327,7 @@ public class TCPClient {
 
                 if (input.startsWith("msg"))
                 {   String userMsg = input.replace("Msg ", "");
-                    String [] MsgSplit = userMsg.split(" ");
+                    String [] MsgSplit = userMsg.split(" ",3);
                     String sender = MsgSplit[1];
                     String userMsgOut = MsgSplit[2];
 
