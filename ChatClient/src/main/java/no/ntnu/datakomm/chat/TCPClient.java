@@ -1,7 +1,7 @@
 package no.ntnu.datakomm.chat;
 
 import java.io.*;
-import java.net.*;
+import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,10 +28,16 @@ public class TCPClient {
         // Hint: Remember to set up all the necessary input/output stream variables
         //Establish connection to the remote server
         try {
-        Socket socket = new Socket(host, port);
-        System.out.println("Successfully connected!");
 
+        Socket socket = new Socket(host, port);
         connection = socket;
+        OutputStream outputStream = connection.getOutputStream();
+        toServer = new PrintWriter(outputStream, true);
+
+        InputStream inputStream = connection.getInputStream();
+            fromServer = new BufferedReader(new InputStreamReader(inputStream));
+
+            System.out.println("Successfully connected!");
 
         } catch (IOException e) {
             System.out.println("Socket error: " + e.getMessage());
@@ -77,85 +83,66 @@ public class TCPClient {
      * @param cmd A command. It should include the command word and optional attributes, according to the protocol.
      * @return true on success, false otherwise
      */
-    private boolean sendCommand(String cmd) {
+    private boolean sendCommand(String cmd)
+    {
         // TODO Step 2: Implement this method -Done
         // Hint: Remember to check if connection is active
+      boolean sendAttempt = false;
 
+        if (isConnectionActive()) {
+            if (cmd != null)
+            {
+                String[] array = cmd.split(" ");
+                String firstWord = array[0];
+                //String RestWord = array[0];
 
-        while (isConnectionActive()) {
-                try {
-                    String[] array = cmd.split("");
-                    if(array.length>2)
-                    {
-                        array = cmd.split(" ", 2);
-                    }
+                if (firstWord.contains("login")) {
 
+                    toServer.println(cmd);
 
-                    String firstWord = array[0];
-                    //String RestWord = array[0];
-
-                    if (firstWord.contains("login")) {
-                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                        PrintWriter writer = new PrintWriter(out, true);
-                        writer.println(cmd);
-
-                        System.out.println(cmd);
-                        System.out.println("Login message sent");
-                        return true;
-                    }
-
-                    if (firstWord.startsWith("msg")) {
-                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                        PrintWriter writer = new PrintWriter(out, true);
-                        out.writeBytes(cmd);
-                        writer.println("");
-                        return true;
-                    }
-
-                    if (firstWord.startsWith("privmsg")) {
-                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                        PrintWriter writer = new PrintWriter(out, true);
-                        out.writeBytes(cmd);
-                        writer.println("");
-                        return true;
-                    }
-
-                    if (firstWord.startsWith("/help")) {
-                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                        PrintWriter writer = new PrintWriter(out, true);
-                        out.writeBytes("help" );
-                        writer.println("");
-                        return true;
-                    }
-
-                    if (firstWord.contains("users")) {
-
-                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                        PrintWriter writer = new PrintWriter(out, true);
-                        out.writeBytes("users" );
-                        writer.println("");
-                        return true;
-                    }
-
-                    else {
-                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
-                        PrintWriter writer = new PrintWriter(out, true);
-                        out.writeBytes("msg " + cmd);
-                        writer.println("");
-
-                        System.out.println("Message sent");
-                        return true;
-                    }
-
-
-
+                    System.out.println(cmd);
+                    System.out.println("Login message sent");
+                    sendAttempt = true;
                 }
-                catch (IOException e) {
-                    System.out.println("Socket error: " + e.getMessage());
-                    return false;
+
+                else if (firstWord.startsWith("msg")) {
+                    toServer.println("msg " + cmd);
+                    System.out.println(cmd);
+                    sendAttempt = true;
                 }
+
+                else if (firstWord.startsWith("privmsg")) {
+
+                    toServer.println(cmd);
+                    sendAttempt = true;
+                }
+
+                else if (firstWord.startsWith("/help")) {
+
+                    toServer.println("help");
+                    sendAttempt = true;
+                }
+
+                else if (firstWord.contains("users")) {
+
+
+                    toServer.println("users");
+                    sendAttempt = true;
+                }
+             else {
+
+                //  out.writeBytes(cmd);
+                toServer.println("msg " + cmd);
+                // toServer.println("msg " + cmd);
+
+                System.out.println("Message sent");
+                sendAttempt = true; }
+             }
+
+
+
         }
-     return true;
+     return sendAttempt;
     }
 
     /**
@@ -233,26 +220,19 @@ public class TCPClient {
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
         // Get response from the server
 
+        String serverResponse = null;
+        if(isConnectionActive())
+        {
         try {
-        InputStream in = connection.getInputStream();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        String responseLine;
-        String serverResponse;
-
-            do{
-                responseLine = reader.readLine();
-                if (responseLine != null){
-                    System.out.println("SERVER: " + responseLine);
-                    serverResponse = responseLine;
-                    return serverResponse;
-                }
-            } while (responseLine != null);
-
+            serverResponse = fromServer.readLine();
         }
-     catch (IOException e) {
+        catch (IOException e)
+        {
         System.out.println("Socket error: " + e.getMessage());
-    }
-        return null;
+        }
+
+     }
+        return serverResponse;
     }
 
     /**
@@ -273,7 +253,8 @@ public class TCPClient {
      */
     public void startListenThread() {
         // Call parseIncomingCommands() in the new thread.
-        Thread t = new Thread(() -> {
+        Thread t = new Thread(() ->
+        {
             parseIncomingCommands();
         });
         t.start();
@@ -284,84 +265,79 @@ public class TCPClient {
      * the connection is closed.
      */
     private void parseIncomingCommands() {
+        // TODO Step 3: Implement this method -Done
+        // Hint: Reuse waitServerResponse() method
+        // Hint: Have a switch-case (or other way) to check what type of response is received from the server
+        // and act on it.
+        // Hint: In Step 3 you need to handle only login-related responses.
+        // Hint: In Step 3 reuse onLoginResult() method
         while (isConnectionActive()) {
-            try {
-                // TODO Step 3: Implement this method -Done
-                // Hint: Reuse waitServerResponse() method
-                // Hint: Have a switch-case (or other way) to check what type of response is received from the server
-                // and act on it.
-                // Hint: In Step 3 you need to handle only login-related responses.
-                // Hint: In Step 3 reuse onLoginResult() method
+            String fromServer = waitServerResponse();
+          if (fromServer !=null) {
+               String [] responseParts = fromServer.split(" ");
+               String firstWord = responseParts[0];
+              try {
+                  switch (firstWord) {
 
-                String input = waitServerResponse();
-                if (input.startsWith("loginok")) {
-                    boolean success = true;
-                    String errMsg = "login successful";
-                    onLoginResult(success, errMsg);
-                }
+                      case "loginok":
+                          onLoginResult(true, fromServer);
+                          break;
 
-                if (input.startsWith("loginerr")) {
-                    boolean success = false;
-                    String errMsg = "login failed";
-                    onLoginResult(success, errMsg);
-                }
+                      case "loginerr":
+                          onLoginResult(false, fromServer);
+                          break;
 
+                      // TODO Step 5: update this method, handle user-list response from the server -Done
+                      // Hint: In Step 5 reuse onUserList() method
 
-
-                // TODO Step 5: update this method, handle user-list response from the server -Done
-                // Hint: In Step 5 reuse onUserList() method
-                if (input.startsWith("users"))
-                {   String userList = input.replace("users ", "");
-                    String [] userListSplit = userList.split(" ");
-                    onUsersList(userListSplit);
-                }
+                      case "users":
+                          String userList = fromServer.replace("users ", "");
+                          String[] userListSplit = userList.split(" ");
+                          onUsersList(userListSplit);
+                          break;
 
 
-                // TODO Step 7: add support for incoming chat messages from other users (types: msg, privmsg) - Done
+                      // TODO Step 7: add support for incoming chat messages from other users (types: msg, privmsg) - Done
 
-                if (input.startsWith("privmsg"))
-                {   String userPrivMsg = input.replace("privMsg", "");
-                    String [] privMsgSplit = userPrivMsg.split(" ", 3);//  userPrivMsg
-                    String sender = privMsgSplit[1];
-                    String userPrivMsgOut = privMsgSplit[2];
+                      case "privmsg":
+                          String userPrivMsg = fromServer.replace("privmsg ", "");
+                          String[] privMsgSplit = userPrivMsg.split(" ");
+                          String sender = privMsgSplit[0];
+                          String userPrivMsgOut = userPrivMsg.replace(sender + " ", "");
+                          onMsgReceived(true, sender, userPrivMsgOut);
+                          break;
 
-                    onMsgReceived(true, sender, userPrivMsgOut);
-                }
+                      case "msg":
+                          String userMsg = fromServer.replace("msg ", "");
+                          String[] MsgSplit = userMsg.split(" ");
+                          String msgSender = MsgSplit[0];
+                          String userMsgOut = userMsg.replace(msgSender + " ", "");
+                          onMsgReceived(false, msgSender, userMsgOut);
+                          break;
 
-                if (input.startsWith("msg"))
-                {   String userMsg = input.replace("Msg", "");
-                    String [] MsgSplit = userMsg.split(" ", 3);
-                    String sender = MsgSplit[1];
-                    String userMsgOut = MsgSplit[2];
+                      // TODO Step 7: add support for incoming message errors (type: msgerr)
+                      case "msgerr":
+                          onMsgError(fromServer);
+                          break;
 
-                    onMsgReceived(false, sender, userMsgOut);
-                }
-                // TODO Step 7: add support for incoming message errors (type: msgerr)
-                if (input.startsWith("msgerr"))
-                {
-                    onMsgError(input);
-                }
-                // TODO Step 7: add support for incoming command errors (type: cmderr)
-                // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
-                if (input.startsWith("cmderr"))
-                {
-                    onCmdError(input);
-                }
-                // TODO Step 8: add support for incoming supported command list (type: supported) -Done
+                      // TODO Step 7: add support for incoming command errors (type: cmderr)
+                      // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
+                      case "cmderr":
+                          onCmdError(fromServer);
+                          break;
+                      // TODO Step 8: add support for incoming supported command list (type: supported) -Done
 
-                if (input.startsWith("supported"))
-                {   String supLine = input.replace("supported ", "");
-                    String [] supSplit = supLine.split(" ");
-                    onSupported(supSplit);
-                }
-                else{
-                   // System.out.println("parse incoming command else");
-                }
-            }
-            catch(NullPointerException e)
+                      case "supported":
+                          String supLine = fromServer.replace("supported ", "");
+                          String[] supSplit = supLine.split(" ");
+                          onSupported(supSplit);
+                          break;
+                  }
+              } catch (Exception e)
             {
-                //Behandling av feil...
-            }
+                  e.printStackTrace();
+              }
+          }
         }
 
     }
