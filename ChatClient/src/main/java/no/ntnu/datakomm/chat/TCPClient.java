@@ -35,6 +35,7 @@ public class TCPClient {
 
         } catch (IOException e) {
             System.out.println("Socket error: " + e.getMessage());
+            lastError = "" + e;
             return false;
         }
         return true;
@@ -60,6 +61,7 @@ public class TCPClient {
         }
         catch (IOException e) {
             System.out.println("Socket error: " + e.getMessage());
+            lastError = "" + e;
         }
 
     }
@@ -149,7 +151,9 @@ public class TCPClient {
                 }
                 catch (IOException e) {
                     System.out.println("Socket error: " + e.getMessage());
+                    lastError = "" + e;
                     return false;
+
                 }
         }
      return true;
@@ -166,6 +170,7 @@ public class TCPClient {
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
         sendCommand(message);
+
         return true;
     }
 
@@ -206,6 +211,7 @@ public class TCPClient {
         // TODO Step 6: Implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
+
         return false;
     }
 
@@ -248,6 +254,7 @@ public class TCPClient {
         }
      catch (IOException e) {
         System.out.println("Socket error: " + e.getMessage());
+         lastError = "" + e;
     }
         return null;
     }
@@ -325,6 +332,7 @@ public class TCPClient {
             }
             catch(NullPointerException e)
             {
+                lastError = "" + e;
                 //Behandling av feil...
             }
         }
