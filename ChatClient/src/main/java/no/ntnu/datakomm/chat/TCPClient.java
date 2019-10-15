@@ -105,7 +105,10 @@ public class TCPClient {
                     }
 
                     if (firstWord.startsWith("msg")) {
-                        System.out.println("Bolle2");
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        PrintWriter writer = new PrintWriter(out, true);
+                        out.writeBytes(cmd);
+                        writer.println("");
                         return true;
                     }
 
@@ -279,7 +282,7 @@ public class TCPClient {
     private void parseIncomingCommands() {
         while (isConnectionActive()) {
             try {
-                // TODO Step 3: Implement this method -Doneish
+                // TODO Step 3: Implement this method -Done
                 // Hint: Reuse waitServerResponse() method
                 // Hint: Have a switch-case (or other way) to check what type of response is received from the server
                 // and act on it.
@@ -301,7 +304,7 @@ public class TCPClient {
 
 
 
-                // TODO Step 5: update this method, handle user-list response from the server
+                // TODO Step 5: update this method, handle user-list response from the server -Done
                 // Hint: In Step 5 reuse onUserList() method
                 if (input.startsWith("users"))
                 {   String userList = input.replace("users ", "");
@@ -335,7 +338,7 @@ public class TCPClient {
                 else
                 // TODO Step 8: add support for incoming supported command list (type: supported)
                 {
-                    System.out.println("parse incoming command else");
+                   // System.out.println("parse incoming command else");
                 }
             }
             catch(NullPointerException e)
