@@ -105,17 +105,28 @@ public class TCPClient {
                     }
 
                     if (firstWord.startsWith("msg")) {
-                        System.out.println("Fuck2");
+                        System.out.println("Bolle2");
                         return true;
                     }
 
                     if (firstWord.contains("privmsg")) {
-                        System.out.println("Fuck3");
+                        System.out.println("Bolle3");
                         return true;
                     }
 
                     if (firstWord.contains("help")) {
-                        System.out.println("Fuck4");
+                        System.out.println("Bolle4");
+                        return true;
+                    }
+
+                    if (firstWord.contains("users")) {
+
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        PrintWriter writer = new PrintWriter(out, true);
+                        out.writeBytes("users" );
+                        writer.println("");
+
+                        System.out.println("Bolle users");
                         return true;
                     }
 
@@ -175,6 +186,7 @@ public class TCPClient {
         // TODO Step 5: implement this method
         // Hint: Use Wireshark and the provided chat client reference app to find out what commands the
         // client and server exchange for user listing.
+        sendCommand("users");
     }
 
     /**
@@ -208,7 +220,7 @@ public class TCPClient {
      */
     private String waitServerResponse() {
         // TODO Step 3: Implement this method -Done
-        // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong
+        // TODO Step 4: If you get I/O Exception or null from the stream, it means that something has gone wrong -Done
         // with the stream and hence the socket. Probably a good idea to close the socket in that case.
         // Get response from the server
 
@@ -285,12 +297,15 @@ public class TCPClient {
                     onLoginResult(success, errMsg);
                 }
                 else
-                {
-                 System.out.println("parse incoming command else");
-                }
+
 
                 // TODO Step 5: update this method, handle user-list response from the server
                 // Hint: In Step 5 reuse onUserList() method
+                if (input.startsWith("users"))
+                {   String userList = input.replace("users ", "");
+                    String [] userListSplit = userList.split(" ");
+                    onUsersList(userListSplit);
+                }
 
                 // TODO Step 7: add support for incoming chat messages from other users (types: msg, privmsg)
                 // TODO Step 7: add support for incoming message errors (type: msgerr)
@@ -298,7 +313,9 @@ public class TCPClient {
                 // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
 
                 // TODO Step 8: add support for incoming supported command list (type: supported)
-
+                {
+                    System.out.println("parse incoming command else");
+                }
             }
             catch(NullPointerException e)
             {
@@ -352,7 +369,7 @@ public class TCPClient {
      * Internet error)
      */
     private void onDisconnect() {
-        // TODO Step 4: Implement this method
+        // TODO Step 4: Implement this method -Done
         // Hint: all the onXXX() methods will be similar to onLoginResult()
         for (ChatListener l : listeners) {
             l.onDisconnect();
@@ -366,6 +383,9 @@ public class TCPClient {
      */
     private void onUsersList(String[] users) {
         // TODO Step 5: Implement this method
+        for (ChatListener l : listeners) {
+            l.onUserList(users);
+        }
     }
 
     /**
