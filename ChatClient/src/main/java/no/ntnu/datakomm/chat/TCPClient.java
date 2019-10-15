@@ -120,8 +120,11 @@ public class TCPClient {
                         return true;
                     }
 
-                    if (firstWord.contains("/help")) {
-                        System.out.println("Bolle4");
+                    if (firstWord.startsWith("/help")) {
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        PrintWriter writer = new PrintWriter(out, true);
+                        out.writeBytes("help" );
+                        writer.println("");
                         return true;
                     }
 
@@ -215,7 +218,7 @@ public class TCPClient {
     public void askSupportedCommands() {
         // TODO Step 8: Implement this method
         // Hint: Reuse sendCommand() method
-       // sendCommand("/help");
+        sendCommand("/help");
     }
 
 
@@ -336,9 +339,15 @@ public class TCPClient {
                 // TODO Step 7: add support for incoming message errors (type: msgerr)
                 // TODO Step 7: add support for incoming command errors (type: cmderr)
                 // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
-                else
+
                 // TODO Step 8: add support for incoming supported command list (type: supported)
-                {
+
+                if (input.startsWith("supported"))
+                {   String supLine = input.replace("supported ", "");
+                    String [] supSplit = supLine.split(" ");
+                    onSupported(supSplit);
+                }
+                else{
                    // System.out.println("parse incoming command else");
                 }
             }
@@ -453,5 +462,8 @@ public class TCPClient {
      */
     private void onSupported(String[] commands) {
         // TODO Step 8: Implement this method
+        for (ChatListener l : listeners) {
+            l.onSupportedCommands(commands);
+        }
     }
 }
