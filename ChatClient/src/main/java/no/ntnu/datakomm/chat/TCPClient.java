@@ -110,7 +110,11 @@ public class TCPClient {
                     }
 
                     if (firstWord.contains("privmsg")) {
-                        System.out.println("Bolle3");
+                        DataOutputStream out = new DataOutputStream(connection.getOutputStream());
+                        PrintWriter writer = new PrintWriter(out, true);
+                        writer.println(cmd);
+
+                        System.out.println("private message sent");
                         return true;
                     }
 
@@ -197,6 +201,8 @@ public class TCPClient {
      * @return true if message sent, false on error
      */
     public boolean sendPrivateMessage(String recipient, String message) {
+        String prvmessage ="privmsg" + " " + recipient + " " + message;
+        sendCommand(prvmessage);
         // TODO Step 6: Implement this method
         // Hint: Reuse sendCommand() method
         // Hint: update lastError if you want to store the reason for the error.
