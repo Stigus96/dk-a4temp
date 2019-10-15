@@ -216,7 +216,7 @@ public class TCPClient {
      * Send a request for the list of commands that server supports.
      */
     public void askSupportedCommands() {
-        // TODO Step 8: Implement this method
+        // TODO Step 8: Implement this method -Done
         // Hint: Reuse sendCommand() method
         sendCommand("/help");
     }
@@ -320,8 +320,8 @@ public class TCPClient {
                 // TODO Step 7: add support for incoming chat messages from other users (types: msg, privmsg) - Done
 
                 if (input.startsWith("privmsg"))
-                {   String userPrivMsg = input.replace("privMsg ", "");
-                    String [] privMsgSplit = userPrivMsg.split(" ", 3);
+                {   String userPrivMsg = input.replace("privMsg", "");
+                    String [] privMsgSplit = userPrivMsg.split(" ", 3);//  userPrivMsg
                     String sender = privMsgSplit[1];
                     String userPrivMsgOut = privMsgSplit[2];
 
@@ -329,18 +329,25 @@ public class TCPClient {
                 }
 
                 if (input.startsWith("msg"))
-                {   String userMsg = input.replace("Msg ", "");
-                    String [] MsgSplit = userMsg.split(" ",3);
+                {   String userMsg = input.replace("Msg", "");
+                    String [] MsgSplit = userMsg.split(" ", 3);
                     String sender = MsgSplit[1];
                     String userMsgOut = MsgSplit[2];
 
                     onMsgReceived(false, sender, userMsgOut);
                 }
                 // TODO Step 7: add support for incoming message errors (type: msgerr)
+                if (input.startsWith("msgerr"))
+                {
+                    onMsgError(input);
+                }
                 // TODO Step 7: add support for incoming command errors (type: cmderr)
                 // Hint for Step 7: call corresponding onXXX() methods which will notify all the listeners
-
-                // TODO Step 8: add support for incoming supported command list (type: supported)
+                if (input.startsWith("cmderr"))
+                {
+                    onCmdError(input);
+                }
+                // TODO Step 8: add support for incoming supported command list (type: supported) -Done
 
                 if (input.startsWith("supported"))
                 {   String supLine = input.replace("supported ", "");
@@ -430,7 +437,7 @@ public class TCPClient {
      * @param text   Message text
      */
     private void onMsgReceived(boolean priv, String sender, String text) {
-        // TODO Step 7: Implement this method
+        // TODO Step 7: Implement this method -Done
         for (ChatListener l : listeners) {
             l.onMessageReceived(new TextMessage(sender, priv, text));
         }
@@ -443,6 +450,9 @@ public class TCPClient {
      */
     private void onMsgError(String errMsg) {
         // TODO Step 7: Implement this method
+        for (ChatListener l : listeners) {
+            l.onMessageError(errMsg);
+        }
     }
 
     /**
@@ -452,6 +462,9 @@ public class TCPClient {
      */
     private void onCmdError(String errMsg) {
         // TODO Step 7: Implement this method
+        for (ChatListener l : listeners) {
+            l.onCommandError(errMsg);
+        }
     }
 
     /**
@@ -461,7 +474,7 @@ public class TCPClient {
      * @param commands Commands supported by the server
      */
     private void onSupported(String[] commands) {
-        // TODO Step 8: Implement this method
+        // TODO Step 8: Implement this method -Done
         for (ChatListener l : listeners) {
             l.onSupportedCommands(commands);
         }
