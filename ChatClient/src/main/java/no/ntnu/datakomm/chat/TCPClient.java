@@ -106,14 +106,15 @@ public class TCPClient {
                 }
 
                 else if (firstWord.startsWith("msg")) {
-                    toServer.println("msg " + cmd);
+                    String userMsg = cmd.replace("\n", "");
+                    toServer.println("msg " + userMsg);
                     System.out.println(cmd);
                     sendAttempt = true;
                 }
 
                 else if (firstWord.startsWith("privmsg")) {
-
-                    toServer.println(cmd);
+                    String userInput = cmd.replace("\n", "");
+                    toServer.println(userInput);
                     sendAttempt = true;
                 }
 
@@ -132,7 +133,9 @@ public class TCPClient {
              else {
 
                 //  out.writeBytes(cmd);
-                toServer.println("msg " + cmd);
+                    String userInput = cmd.replace("\n", "");
+                toServer.println("msg " + userInput);
+
                 // toServer.println("msg " + cmd);
 
                 System.out.println("Message sent");
